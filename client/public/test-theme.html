@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Theme Toggle Test</title>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #171717;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+      }
+    }
+    
+    body {
+      color: var(--foreground);
+      background: var(--background);
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    .dark {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+    
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      background-color: #4ECDC4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .info {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Theme Toggle Test</h1>
+  
+  <div>
+    <button id="toggleTheme">Toggle Theme</button>
+    <button id="forceLight">Force Light Theme</button>
+  </div>
+  
+  <div class="info" id="themeInfo">
+    Current theme: <span id="currentTheme">light</span><br>
+    System preference: <span id="systemPreference">detecting...</span><br>
+    Saved preference: <span id="savedPreference">none</span>
+  </div>
+  
+  <script>
+    // Check system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.getElementById('systemPreference').textContent = prefersDark ? 'dark' : 'light';
+    
+    // Check saved preference
+    const savedTheme = localStorage.getItem('theme');
+    document.getElementById('savedPreference').textContent = savedTheme || 'none';
+    
+    // Apply initial theme
+    if (savedTheme) {
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      document.getElementById('currentTheme').textContent = savedTheme;
+    } else {
+      document.documentElement.classList.toggle('dark', prefersDark);
+      document.getElementById('currentTheme').textContent = prefersDark ? 'dark' : 'light';
+    }
+    
+    // Toggle theme button
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const newTheme = isDark ? 'light' : 'dark';
+      
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', newTheme);
+      document.getElementById('currentTheme').textContent = newTheme;
+      document.getElementById('savedPreference').textContent = newTheme;
+      
+      console.log('Theme toggled to:', newTheme);
+    });
+    
+    // Force light theme button
+    document.getElementById('forceLight').addEventListener('click', () => {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      document.getElementById('currentTheme').textContent = 'light';
+      document.getElementById('savedPreference').textContent = 'light';
+      
+      console.log('Forced light theme');
+    });
+    
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', (e) => {
+      const newSystemPreference = e.matches ? 'dark' : 'light';
+      document.getElementById('systemPreference').textContent = newSystemPreference;
+      console.log('System theme changed to:', newSystemPreference);
+      
+      // Only apply system preference if no saved preference exists
+      if (!localStorage.getItem('theme')) {
+        document.documentElement.classList.toggle('dark', e.matches);
+        document.getElementById('currentTheme').textContent = newSystemPreference;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+[
+  {
+    "_id": {
+      "$oid": "66f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Hey there! How are you doing?",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-15T10:35:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:35:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Doing great! Ready to meet up?",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-15T10:36:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:36:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Sure! Let me share my location",
+    "seen": false,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-15T10:37:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:37:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Meeting tomorrow at 2 PM?",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-14T15:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-14T15:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Sounds good! See you then",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-14T15:05:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-14T15:05:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Great idea! I'll bring the drinks",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-13T18:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-13T18:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f1a7b1c2d3e4f5g6h7i8j9"
+    },
+    "senderId": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "receiverId": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "chatId": {
+      "$oid": "67f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "text": "Perfect! See you this weekend",
+    "seen": true,
+    "deleted": false,
+    "createdAt": {
+      "$date": "2024-02-13T19:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-13T19:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,116 @@
+[
+  {
+    "_id": {
+      "$oid": "68f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "Bay Area Meetup",
+    "description": "Local meetup group for friends in the Bay Area",
+    "admin": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "members": [
+      {
+        "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+      }
+    ],
+    "createdAt": {
+      "$date": "2024-01-05T12:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "68f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "Tech Enthusiasts",
+    "description": "Group for tech lovers to share ideas and projects",
+    "admin": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "members": [
+      {
+        "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+      }
+    ],
+    "createdAt": {
+      "$date": "2024-01-10T14:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T09:45:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "68f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "Weekend Warriors",
+    "description": "Group for weekend activity planning",
+    "admin": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "members": [
+      {
+        "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a4b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+      }
+    ],
+    "createdAt": {
+      "$date": "2024-02-01T11:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-14T16:20:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "68f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "Startup Life",
+    "description": "For entrepreneurs and startup enthusiasts",
+    "admin": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "members": [
+      {
+        "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+      },
+      {
+        "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+      }
+    ],
+    "createdAt": {
+      "$date": "2024-01-20T10:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T11:30:00Z"
+    }
+  }
+]

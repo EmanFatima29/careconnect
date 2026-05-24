@@ -1,0 +1,447 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════
+   CSS Custom Properties — v0 Design Tokens (adapted)
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* Core */
+  --background: #faf9f7;
+  --foreground: #2c3e50;
+
+  /* Surfaces */
+  --card: #ffffff;
+  --card-foreground: #2c3e50;
+  --popover: #ffffff;
+  --popover-foreground: #2c3e50;
+
+  /* Brand */
+  --primary: #2e7d32;
+  --primary-light: #4caf50;
+  --primary-dark: #1b5e20;
+  --primary-foreground: #ffffff;
+  --primary-subtle: #e8f5e9;
+
+  /* Secondary */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #2c3e50;
+
+  /* Muted */
+  --muted: #f1f5f9;
+  --muted-foreground: #5d6d7e;
+
+  /* Accent */
+  --accent: #4caf50;
+  --accent-foreground: #ffffff;
+
+  /* Destructive */
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Inputs */
+  --border: #e0e0e0;
+  --input: #e0e0e0;
+  --ring: #2e7d32;
+
+  /* Chart palette (5-shade green gradient) */
+  --chart-1: #1b5e20;
+  --chart-2: #2e7d32;
+  --chart-3: #4caf50;
+  --chart-4: #81c784;
+  --chart-5: #c8e6c9;
+
+  /* Status */
+  --status-completed: #059669;
+  --status-in-progress: #d97706;
+  --status-pending: #e11d48;
+  --status-online: #10b981;
+  --status-offline: #6b7280;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #2c3e50;
+  --sidebar-primary: #2e7d32;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #2c3e50;
+  --sidebar-border: #e0e0e0;
+  --sidebar-ring: #2e7d32;
+  --sidebar-width: 264px;
+
+  /* Radius */
+  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  /* Header */
+  --header-height: 64px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Dark Theme
+   ═══════════════════════════════════════════════════════ */
+
+.dark {
+  --background: #121212;
+  --foreground: #e0e0e0;
+
+  --card: #1e1e1e;
+  --card-foreground: #e0e0e0;
+  --popover: #1e1e1e;
+  --popover-foreground: #e0e0e0;
+
+  --primary: #4caf50;
+  --primary-light: #81c784;
+  --primary-dark: #2e7d32;
+  --primary-foreground: #ffffff;
+  --primary-subtle: #1b3a1b;
+
+  --secondary: #1e3a1e;
+  --secondary-foreground: #e0e0e0;
+
+  --muted: #1e3a1e;
+  --muted-foreground: #a0a0a0;
+
+  --accent: #4caf50;
+  --accent-foreground: #ffffff;
+
+  --destructive: #fb7185;
+  --destructive-foreground: #ffffff;
+
+  --border: #333333;
+  --input: #333333;
+  --ring: #4caf50;
+
+  --chart-1: #059669;
+  --chart-2: #10b981;
+  --chart-3: #34d399;
+  --chart-4: #6ee7b7;
+  --chart-5: #a7f3d0;
+
+  --status-completed: #34d399;
+  --status-in-progress: #fbbf24;
+  --status-pending: #fb7185;
+  --status-online: #34d399;
+  --status-offline: #9ca3af;
+
+  --sidebar: #1a2e1a;
+  --sidebar-foreground: #e0e0e0;
+  --sidebar-primary: #4caf50;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e3a1e;
+  --sidebar-accent-foreground: #e0e0e0;
+  --sidebar-border: #2d4a2d;
+  --sidebar-ring: #4caf50;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Animation Keyframes (v0 design system)
+   ═══════════════════════════════════════════════════════ */
+
+/* Gentle floating oscillation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Slide up with fade — entrance animation */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale up for chart bars */
+@keyframes barSlideUp {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* Pulsing ring for notification badges */
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Fade in with slight vertical shift */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in — for cards/modals */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Gentle pulse */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Spin */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bounce */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Progress ring fill animation */
+@keyframes progressFill {
+  from {
+    stroke-dashoffset: var(--progress-circumference, 283);
+  }
+  to {
+    stroke-dashoffset: var(--progress-offset, 0);
+  }
+}
+
+/* Counter tick animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Animation Utility Classes
+   ═══════════════════════════════════════════════════════ */
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+.animate-bounce {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Staggered entrance animation delays */
+.animate-delay-1 {
+  animation-delay: 0.1s;
+}
+.animate-delay-2 {
+  animation-delay: 0.2s;
+}
+.animate-delay-3 {
+  animation-delay: 0.3s;
+}
+.animate-delay-4 {
+  animation-delay: 0.4s;
+}
+.animate-delay-5 {
+  animation-delay: 0.5s;
+}
+.animate-delay-6 {
+  animation-delay: 0.6s;
+}
+
+/* Start hidden for staggered entrance (opacity applied by animation) */
+.animate-stagger-child {
+  opacity: 0;
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Interactive Hover Utilities
+   ═══════════════════════════════════════════════════════ */
+
+.hover-scale {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale-lg {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.hover-scale-lg:hover {
+  transform: scale(1.05);
+}
+
+.hover-lift {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-shift-right {
+  transition: transform 0.2s ease;
+}
+.hover-shift-right:hover {
+  transform: translateX(4px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Scrollbar Styling
+   ═══════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}

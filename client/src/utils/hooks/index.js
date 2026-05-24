@@ -1,0 +1,1 @@
+export { useTruncateMessage } from "./hooks";

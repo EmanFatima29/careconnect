@@ -1,0 +1,166 @@
+[
+  {
+    "_id": {
+      "$oid": "69f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "login",
+    "description": "User logged in",
+    "metadata": {
+      "ip": "192.168.1.1",
+      "device": "desktop"
+    },
+    "createdAt": {
+      "$date": "2024-02-15T10:30:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "message_sent",
+    "description": "User sent a message",
+    "metadata": {
+      "chatId": "67f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "createdAt": {
+      "$date": "2024-02-15T10:35:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "location_shared",
+    "description": "User shared their location",
+    "metadata": {
+      "coordinates": [-122.419, 37.775]
+    },
+    "createdAt": {
+      "$date": "2024-02-15T10:37:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "group_joined",
+    "description": "User joined a group",
+    "metadata": {
+      "groupId": "68f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "createdAt": {
+      "$date": "2024-02-15T10:40:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "profile_updated",
+    "description": "User updated their profile",
+    "metadata": {
+      "fields": ["bio", "interests"]
+    },
+    "createdAt": {
+      "$date": "2024-02-14T14:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "login",
+    "description": "User logged in",
+    "metadata": {
+      "ip": "192.168.1.5",
+      "device": "mobile"
+    },
+    "createdAt": {
+      "$date": "2024-02-14T12:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a7b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "message_sent",
+    "description": "User sent a message",
+    "metadata": {
+      "chatId": "67f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "createdAt": {
+      "$date": "2024-02-13T15:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a8b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "group_created",
+    "description": "User created a group",
+    "metadata": {
+      "groupId": "68f1a2b1c2d3e4f5g6h7i8j9",
+      "groupName": "Tech Enthusiasts"
+    },
+    "createdAt": {
+      "$date": "2024-01-10T14:30:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a9b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "message_sent",
+    "description": "User sent a message",
+    "metadata": {
+      "chatId": "67f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "createdAt": {
+      "$date": "2024-02-12T16:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69f1a0b1c2d3e4f5g6h7i8j9"
+    },
+    "userId": {
+      "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "action": "login",
+    "description": "User logged in",
+    "metadata": {
+      "ip": "192.168.2.10",
+      "device": "mobile"
+    },
+    "createdAt": {
+      "$date": "2024-02-12T14:30:00Z"
+    }
+  }
+]

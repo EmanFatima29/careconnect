@@ -1,0 +1,188 @@
+[
+  {
+    "_id": {
+      "$oid": "65f1a1b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "john_anderson",
+    "email": "john.anderson@example.com",
+    "phone": "+14155551234",
+    "status": "online",
+    "address": {
+      "street": "123 Main St",
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94105"
+    },
+    "gender": "male",
+    "age": 32,
+    "location": {
+      "type": "Point",
+      "coordinates": [-122.419, 37.775],
+      "lastSeen": {
+        "$date": "2024-02-15T10:30:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-01-10T08:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:30:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f1a2b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "sarah_martinez",
+    "email": "sarah.martinez@example.com",
+    "phone": "+14155552345",
+    "status": "online",
+    "address": {
+      "street": "456 Oak Ave",
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94107"
+    },
+    "gender": "female",
+    "age": 28,
+    "location": {
+      "type": "Point",
+      "coordinates": [-122.408, 37.783],
+      "lastSeen": {
+        "$date": "2024-02-15T10:25:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-01-12T09:15:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:25:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f1a3b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "michael_chen",
+    "email": "michael.chen@example.com",
+    "phone": "+14155553456",
+    "status": "online",
+    "address": {
+      "street": "789 Elm St",
+      "city": "San Jose",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "95110"
+    },
+    "gender": "male",
+    "age": 35,
+    "location": {
+      "type": "Point",
+      "coordinates": [-121.886, 37.338],
+      "lastSeen": {
+        "$date": "2024-02-15T10:20:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-01-08T07:45:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:20:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f1a4b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "emily_wilson",
+    "email": "emily.wilson@example.com",
+    "phone": "+14155554567",
+    "status": "offline",
+    "address": {
+      "street": "321 Pine Rd",
+      "city": "Oakland",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94601"
+    },
+    "gender": "female",
+    "age": 26,
+    "location": {
+      "type": "Point",
+      "coordinates": [-122.271, 37.805],
+      "lastSeen": {
+        "$date": "2024-02-15T08:00:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-01-15T06:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T08:00:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f1a5b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "david_johnson",
+    "email": "david.johnson@example.com",
+    "phone": "+14155555678",
+    "status": "online",
+    "address": {
+      "street": "654 Birch Ln",
+      "city": "Berkeley",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94702"
+    },
+    "gender": "male",
+    "age": 31,
+    "location": {
+      "type": "Point",
+      "coordinates": [-122.275, 37.872],
+      "lastSeen": {
+        "$date": "2024-02-15T10:15:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-01-20T05:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:15:00Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f1a6b1c2d3e4f5g6h7i8j9"
+    },
+    "name": "lisa_brown",
+    "email": "lisa.brown@example.com",
+    "phone": "+14155556789",
+    "status": "online",
+    "address": {
+      "street": "987 Cedar Dr",
+      "city": "Palo Alto",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94301"
+    },
+    "gender": "female",
+    "age": 29,
+    "location": {
+      "type": "Point",
+      "coordinates": [-122.166, 37.443],
+      "lastSeen": {
+        "$date": "2024-02-15T10:10:00Z"
+      }
+    },
+    "createdAt": {
+      "$date": "2024-02-01T10:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-02-15T10:10:00Z"
+    }
+  }
+]
