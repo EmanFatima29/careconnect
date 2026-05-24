@@ -68,8 +68,37 @@ const userSchema = new mongoose.Schema(
     },
     roles: {
       type: String,
-      enum: ["patient", "doctor", "admin", "superadmin"],
+      enum: ["patient", "doctor", "admin", "superadmin", "pharmacy"],
       default: "patient",
+    },
+
+    // Doctor-specific profile
+    doctorProfile: {
+      specialty: { type: String, default: null },
+      licenseNumber: { type: String, default: null },
+      experience: { type: Number, default: null }, // years
+      availableDays: { type: [String], default: [] }, // ["Monday","Tuesday",...]
+      availableFrom: { type: String, default: null }, // "09:00"
+      availableTo: { type: String, default: null },   // "17:00"
+      consultationFee: { type: Number, default: null },
+      verified: { type: Boolean, default: false },
+    },
+
+    // Pharmacy-specific profile
+    pharmacyProfile: {
+      licenseNumber: { type: String, default: null },
+      operatingHours: {
+        open:  { type: String, default: null }, // "08:00"
+        close: { type: String, default: null }, // "22:00"
+      },
+      services: { type: [String], default: [] }, // ["Delivery","24hr","Lab Tests"]
+      verified: { type: Boolean, default: false },
+    },
+
+    // Rating summary — updated by ratingController on every submit
+    ratingSummary: {
+      averageRating: { type: Number, default: 0 },
+      totalRatings:  { type: Number, default: 0 },
     },
 
     friends: [
@@ -169,9 +198,12 @@ const userSchema = new mongoose.Schema(
 
 // Medical index for nearby user queries
 userSchema.index({ "location.coordinates": "2dsphere" });
-// Performance indexes (email already indexed via unique:true on the ward)
-userSchema.index({ status: 1 }); // Online/offline queries
-userSchema.index({ roles: 1 }); // Admin lookups
-userSchema.index({ "settings.locationSharing": 1 }); // Nearby user queries filter on this
+// Performance indexes
+userSchema.index({ status: 1 });
+userSchema.index({ roles: 1 });
+userSchema.index({ "settings.locationSharing": 1 });
+userSchema.index({ roles: 1, "settings.locationSharing": 1 }); // role-filtered nearby queries
+userSchema.index({ "doctorProfile.verified": 1 });
+userSchema.index({ "pharmacyProfile.verified": 1 });
 
 export default mongoose.model("User", userSchema);

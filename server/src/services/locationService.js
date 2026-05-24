@@ -138,7 +138,7 @@ class LocationService {
           $in: ["everyone", "friends"], // Respect privacy settings
         },
       })
-        .select("name location profilePic status lastSeen")
+        .select("name location profilePic status lastSeen roles ratingSummary doctorProfile pharmacyProfile")
         .lean();
     } catch (error) {
       throw new Error(`Failed to find nearby users: ${error.message}`);

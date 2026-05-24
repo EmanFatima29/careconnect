@@ -61,6 +61,7 @@ import {
   fetchUserStats,
   fetchChatStats,
   fetchActivityLogs,
+  fetchPrescriptionStats,
 } from "@/utils/redux/thunks/adminThunks";
 import { clearAdminError } from "@/utils/redux/adminSlice";
 import { useSocket } from "@/utils/hooks/useSocket";
@@ -88,6 +89,14 @@ const PatientHealthChart = dynamic(
 );
 const SentimentWidget = dynamic(
   () => import("@/components/Dashboard/SentimentWidget"),
+  { ssr: false },
+);
+const DoctorDashboard = dynamic(
+  () => import("@/components/Dashboard/DoctorDashboard"),
+  { ssr: false },
+);
+const PharmacyDashboard = dynamic(
+  () => import("@/components/Dashboard/PharmacyDashboard"),
   { ssr: false },
 );
 
@@ -138,7 +147,7 @@ const PatientDashboard = React.memo(function PatientDashboard({ currentUser, cha
       .map((c) => ({
         id: c._id,
         title: c.name || "Unnamed Prescription",
-        dueDate: c.plantedDate,
+        dueDate: c.startDate,
         priority:
           c.status === "Prescribed"
             ? "high"
@@ -458,9 +467,9 @@ const AdminDashboard = React.memo(function AdminDashboard({ allUsers = [] }) {
 
   const totalChats = chatStats?.chats?.total ?? 0;
   const totalMessages = chatStats?.messages?.total ?? 0;
-  const totalPrescriptions = cropStats?.totalCrops ?? 0;
+  const totalPrescriptions = prescriptionStats?.totalPrescriptions ?? 0;
   const newUsersInRange = userStats?.newUsersInRange ?? 0;
-  const newPrescriptionsInRange = cropStats?.cropsCreatedInRange ?? 0;
+  const newPrescriptionsInRange = prescriptionStats?.prescriptionsCreatedInRange ?? 0;
   const newChatsInRange = chatStats?.chats?.createdInRange ?? 0;
   const messagesInRange = chatStats?.messages?.inRange ?? 0;
 
@@ -751,7 +760,7 @@ const AdminDashboard = React.memo(function AdminDashboard({ allUsers = [] }) {
             color="success"
             trend={prescriptionTrend}
             trendDirection={newPrescriptionsInRange > 0 ? "up" : "neutral"}
-            subtitle={`${prescriptionStats?.areaSummary?.totalArea?.toFixed(1) ?? 0} total area`}
+            subtitle={`${prescriptionStats?.prescriptionsCreatedInRange ?? 0} new this period`}
             index={2}
           />
         </Grid>
@@ -1199,6 +1208,10 @@ export default function Dashboard() {
           messages={messages}
         />
       )}
+
+      {role === "doctor" && <DoctorDashboard currentUser={currentUser} />}
+
+      {role === "pharmacy" && <PharmacyDashboard currentUser={currentUser} />}
 
       {role === "admin" && <AdminDashboard allUsers={allUsers} />}
     </Box>

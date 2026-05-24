@@ -37,10 +37,23 @@ import DirectionsIcon from "@mui/icons-material/Directions";
 import {
   MIN_RADIUS,
   MAX_RADIUS,
+  ROLE_COLORS,
+  ROLE_DISPLAY,
   calculateDistance,
   formatCoordinates,
   getProfilePicUrl,
 } from "./mapUtils";
+import StarIcon from "@mui/icons-material/Star";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import dynamic from "next/dynamic";
+
+const BookAppointmentDialog = dynamic(
+  () => import("@/components/Appointments/BookAppointmentDialog"),
+  { ssr: false },
+);
 
 // ========== CUSTOM HOOKS ==========
 export const usePulseMarkerStyle = () => {
@@ -149,42 +162,79 @@ export const RadiusControls = ({ radius, setRadius }) => (
   </Paper>
 );
 
-export const UserPopupContent = ({ user, distance, onChat, onNavigate, showDistance = true, isFriend = false }) => {
+export const UserPopupContent = ({ user, distance, onChat, onNavigate, showDistance = true, isFriend = false, currentUserRole }) => {
   const picUrl = getProfilePicUrl(user);
   const [lng, lat] = user.coordinates || user.location?.coordinates || [0, 0];
+  const role = user.roles || "patient";
+  const roleColor = ROLE_COLORS[role] || ROLE_COLORS.patient;
+  const roleLabel = ROLE_DISPLAY[role] || "Patient";
+  const hasRating = user.ratingSummary?.totalRatings > 0;
+  const [bookOpen, setBookOpen] = useState(false);
+  const canBook = currentUserRole === "patient" && role === "doctor";
 
   return (
-    <Box sx={{ minWidth: 220, p: 0.5 }}>
+    <Box sx={{ minWidth: 230, p: 0.5 }}>
       <Stack spacing={1}>
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Badge overlap="circular" anchorOrigin={{ vertical: "bottom", horizontal: "right" }} variant="dot"
             color={user.status === "online" ? "success" : "default"} invisible={user.status !== "online"}>
-            <Avatar src={picUrl} sx={{ width: 44, height: 44, bgcolor: user.status === "online" ? "success.main" : "grey.400" }}>
+            <Avatar src={picUrl} sx={{ width: 44, height: 44, bgcolor: roleColor + "cc" }}>
               {user.name?.charAt(0)?.toUpperCase() || "U"}
             </Avatar>
           </Badge>
-          <Box>
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{user.name}</Typography>
-              {isFriend && <Chip label="Friend" size="small" color="info" sx={{ height: 18, fontSize: "0.6rem" }} />}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>{user.name}</Typography>
+              {isFriend && <Chip label="Friend" size="small" color="info" sx={{ height: 16, fontSize: "0.55rem" }} />}
             </Stack>
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <FiberManualRecordIcon sx={{ fontSize: 8, color: user.status === "online" ? "success.main" : "text.disabled" }} />
-              <Typography variant="caption" color="text.secondary">{user.status === "online" ? "Online" : "Offline"}</Typography>
+            <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.25 }}>
+              <Chip
+                label={roleLabel}
+                size="small"
+                sx={{ height: 18, fontSize: "0.6rem", fontWeight: 700, bgcolor: roleColor, color: "#fff", letterSpacing: "0.02em" }}
+              />
+              <FiberManualRecordIcon sx={{ fontSize: 7, color: user.status === "online" ? "success.main" : "text.disabled" }} />
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
+                {user.status === "online" ? "Online" : "Offline"}
+              </Typography>
             </Stack>
           </Box>
         </Stack>
+
+        {/* Doctor: specialty */}
+        {role === "doctor" && user.doctorProfile?.specialty && (
+          <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic" }}>
+            {user.doctorProfile.specialty}
+          </Typography>
+        )}
+
+        {/* Pharmacy: operating hours */}
+        {role === "pharmacy" && user.pharmacyProfile?.operatingHours?.open && (
+          <Typography variant="caption" color="text.secondary">
+            Open: {user.pharmacyProfile.operatingHours.open} – {user.pharmacyProfile.operatingHours.close}
+          </Typography>
+        )}
+
+        {/* Rating */}
+        {hasRating && (
+          <Stack direction="row" spacing={0.5} alignItems="center">
+            <StarIcon sx={{ fontSize: 13, color: "warning.main" }} />
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>
+              {user.ratingSummary.averageRating.toFixed(1)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              ({user.ratingSummary.totalRatings} rating{user.ratingSummary.totalRatings !== 1 ? "s" : ""})
+            </Typography>
+          </Stack>
+        )}
 
         {showDistance && distance != null && (
           <Chip label={`${distance.toFixed(1)} km away`} size="small" variant="outlined" sx={{ height: 22, width: "fit-content" }} />
         )}
 
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-          {formatCoordinates(lat, lng)}
-        </Typography>
-
         <Stack direction="row" spacing={1}>
-          <Button variant="contained" size="small" onClick={() => onChat?.(user)} sx={{ flex: 1, textTransform: "none", borderRadius: 1.5, fontWeight: 600 }}>
+          <Button variant="contained" size="small" onClick={() => onChat?.(user)}
+            sx={{ flex: 1, textTransform: "none", borderRadius: 1.5, fontWeight: 600 }}>
             Chat
           </Button>
           {onNavigate && (
@@ -194,7 +244,20 @@ export const UserPopupContent = ({ user, distance, onChat, onNavigate, showDista
             </Button>
           )}
         </Stack>
+
+        {canBook && (
+          <Button variant="outlined" size="small" color="success" fullWidth
+            startIcon={<EventAvailableIcon sx={{ fontSize: 14 }} />}
+            onClick={() => setBookOpen(true)}
+            sx={{ textTransform: "none", borderRadius: 1.5, fontWeight: 600 }}>
+            Book Appointment
+          </Button>
+        )}
       </Stack>
+
+      {canBook && (
+        <BookAppointmentDialog open={bookOpen} onClose={() => setBookOpen(false)} doctor={user} />
+      )}
     </Box>
   );
 };
@@ -210,12 +273,19 @@ export const NearbyUsersSidebar = ({
   showDistance = true,
 }) => {
   const [expanded, setExpanded] = useState(true);
+  const [roleFilter, setRoleFilter] = useState("all");
 
   const filteredUsers = React.useMemo(() => {
-    if (!searchQuery?.trim()) return users;
-    const q = searchQuery.toLowerCase();
-    return users.filter((u) => u.name?.toLowerCase().includes(q));
-  }, [users, searchQuery]);
+    let result = users;
+    if (roleFilter !== "all") {
+      result = result.filter((u) => (u.roles || "patient") === roleFilter);
+    }
+    if (searchQuery?.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((u) => u.name?.toLowerCase().includes(q));
+    }
+    return result;
+  }, [users, searchQuery, roleFilter]);
 
   return (
     <Paper
@@ -233,7 +303,9 @@ export const NearbyUsersSidebar = ({
         {expanded && (
           <Stack direction="row" spacing={0.75} alignItems="center">
             <PeopleIcon sx={{ fontSize: 18, color: "primary.main" }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Nearby ({users.length})</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              Nearby ({filteredUsers.length}{roleFilter !== "all" ? `/${users.length}` : ""})
+            </Typography>
           </Stack>
         )}
         <IconButton size="small" onClick={() => setExpanded(!expanded)}>
@@ -241,16 +313,51 @@ export const NearbyUsersSidebar = ({
         </IconButton>
       </Box>
 
-      {expanded && onSearchChange && (
-        <Box sx={{ px: 1.5, py: 1 }}>
-          <TextField size="small" fullWidth placeholder="Search nearby..." value={searchQuery || ""}
-            onChange={(e) => onSearchChange(e.target.value)}
-            InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "text.secondary" }} /></InputAdornment>,
-              ...(searchQuery && { endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => onSearchChange("")}><CloseIcon sx={{ fontSize: 14 }} /></IconButton></InputAdornment> }),
-            }}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5, fontSize: "0.8rem" } }}
-          />
+      {expanded && (
+        <Box sx={{ px: 1.5, pt: 1, pb: 0.5 }}>
+          {/* Role filter */}
+          <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mb: 0.75 }}>
+            <FilterListIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              size="small"
+              fullWidth
+              sx={{ fontSize: "0.75rem", "& .MuiSelect-select": { py: 0.5 }, "& .MuiOutlinedInput-notchedOutline": { borderRadius: 1.5 } }}
+            >
+              <MenuItem value="all" sx={{ fontSize: "0.75rem" }}>All Roles</MenuItem>
+              <MenuItem value="doctor" sx={{ fontSize: "0.75rem" }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: ROLE_COLORS.doctor }} />
+                  <span>Doctors</span>
+                </Stack>
+              </MenuItem>
+              <MenuItem value="pharmacy" sx={{ fontSize: "0.75rem" }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: ROLE_COLORS.pharmacy }} />
+                  <span>Pharmacies</span>
+                </Stack>
+              </MenuItem>
+              <MenuItem value="patient" sx={{ fontSize: "0.75rem" }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: ROLE_COLORS.patient }} />
+                  <span>Patients</span>
+                </Stack>
+              </MenuItem>
+            </Select>
+          </Stack>
+
+          {/* Search */}
+          {onSearchChange && (
+            <TextField size="small" fullWidth placeholder="Search nearby..." value={searchQuery || ""}
+              onChange={(e) => onSearchChange(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "text.secondary" }} /></InputAdornment>,
+                ...(searchQuery && { endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => onSearchChange("")}><CloseIcon sx={{ fontSize: 14 }} /></IconButton></InputAdornment> }),
+              }}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5, fontSize: "0.8rem" } }}
+            />
+          )}
         </Box>
       )}
 
@@ -294,9 +401,13 @@ export const NearbyUsersSidebar = ({
                 {expanded && (
                   <ListItemText
                     primary={
-                      <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
                         <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>{user.name}</Typography>
-                        {isFriend && <Chip label="Friend" size="small" color="info" variant="outlined" sx={{ height: 16, fontSize: "0.55rem" }} />}
+                        <Chip
+                          label={ROLE_DISPLAY[user.roles] || "Patient"}
+                          size="small"
+                          sx={{ height: 14, fontSize: "0.5rem", fontWeight: 700, bgcolor: ROLE_COLORS[user.roles] || ROLE_COLORS.patient, color: "#fff", letterSpacing: "0.02em" }}
+                        />
                       </Stack>
                     }
                     secondary={

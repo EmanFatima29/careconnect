@@ -35,6 +35,10 @@ import visitRoutes from "./src/routes/visitRoutes.js";
 import speechRoutes from "./src/routes/speechRoutes.js";
 import adminMonitoringRoutes from "./src/routes/adminMonitoringRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
+import ratingRoutes from "./src/routes/ratingRoutes.js";
+import doctorRoutes from "./src/routes/doctorRoutes.js";
+import pharmacyRoutes from "./src/routes/pharmacyRoutes.js";
+import appointmentRoutes from "./src/routes/appointmentRoutes.js";
 import { handleSocket } from "./lib/socketHandler.js";
 import { setupAnalyticsHandlers } from "./lib/socketAnalyticsHandler.js";
 
@@ -139,6 +143,10 @@ app.use("/api/speech", speechRoutes);
 app.use("/api/analytics", analyticsRateLimiter, analyticsRoutes);
 app.use("/api/admin/monitoring", adminMonitoringRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/ratings", ratingRoutes);
+app.use("/api/doctor",   doctorRoutes);
+app.use("/api/pharmacy",      pharmacyRoutes);
+app.use("/api/appointments",  appointmentRoutes);
 
 // Global Error Handler (must be last)
 app.use(errorHandler);

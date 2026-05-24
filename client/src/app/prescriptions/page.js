@@ -57,6 +57,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import MedicationIcon from "@mui/icons-material/Medication";
@@ -125,11 +126,11 @@ function PrescriptionDialog({ open, mode, initialValues, onClose, onSave, saving
           <Stack direction="row" spacing={2}>
             <TextField label="Dosage" value={values.dosage} onChange={handleChange("dosage")} fullWidth
               sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-            <TextField label="Treatment Area" value={values.area} onChange={handleChange("area")} fullWidth type="number"
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+            <TextField label="Duration (days)" value={values.duration} onChange={handleChange("duration")} fullWidth type="number"
+              inputProps={{ min: 1 }} sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
           </Stack>
           <Stack direction="row" spacing={2}>
-            <TextField label="Prescribed Date" type="date" value={values.plantedDate} onChange={handleChange("plantedDate")}
+            <TextField label="Prescribed Date" type="date" value={values.startDate} onChange={handleChange("startDate")}
               InputLabelProps={{ shrink: true }} fullWidth sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
@@ -210,7 +211,7 @@ export default function PrescriptionsPage() {
       active: all.filter((c) => c.status === "Active").length,
       completed: all.filter((c) => c.status === "Completed").length,
       archived: all.filter((c) => c.status === "Archived").length,
-      totalArea: all.reduce((sum, c) => sum + (parseFloat(c.area) || 0), 0),
+      totalDuration: all.reduce((sum, c) => sum + (parseFloat(c.duration) || 0), 0),
       healthy: all.filter((c) => c.currentHealth?.status === "healthy").length,
     };
   }, [prescriptions]);
@@ -218,7 +219,7 @@ export default function PrescriptionsPage() {
   // Dialog
   const openAdd = () => {
     setDialogMode("add");
-    setEditPrescriptionData({ name: "", dosage: "", area: "", plantedDate: "", status: "Prescribed", notes: "" });
+    setEditPrescriptionData({ name: "", dosage: "", duration: "", startDate: "", status: "Prescribed", notes: "" });
     setDialogOpen(true);
   };
 
@@ -228,8 +229,8 @@ export default function PrescriptionsPage() {
       _id: prescription._id,
       name: prescription.name || "",
       dosage: prescription.dosage || "",
-      area: prescription.area ?? "",
-      plantedDate: prescription.plantedDate ? String(prescription.plantedDate).slice(0, 10) : "",
+      duration: prescription.duration ?? "",
+      startDate: prescription.startDate ? String(prescription.startDate).slice(0, 10) : "",
       status: prescription.status || "Prescribed",
       notes: prescription.notes || "",
     });
@@ -293,7 +294,6 @@ export default function PrescriptionsPage() {
                 </Stack>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Chip icon={<MedicationIcon sx={{ fontSize: "14px !important" }} />} label={`${stats.total} prescriptions`} size="small" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
-                  <Chip label={`Total Area: ${stats.totalArea.toFixed(1)}`} size="small" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
                   <Tooltip title="Refresh">
                     <IconButton size="small" onClick={handleRefresh}
                       sx={{ border: 1, borderColor: "divider", borderRadius: 2, transition: "all 0.3s", "&:hover": { transform: "rotate(180deg)", borderColor: "primary.main" } }}>
@@ -398,15 +398,15 @@ export default function PrescriptionsPage() {
                               <Typography variant="body2" color="text.secondary">Dosage: {prescription.dosage}</Typography>
                             </Stack>
                           )}
-                          {prescription.area != null && prescription.area !== "" && (
+                          {prescription.duration != null && prescription.duration !== "" && (
                             <Stack direction="row" spacing={0.75} alignItems="center">
-                              <LocationOnIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                              <Typography variant="body2" color="text.secondary">Area: {prescription.area}</Typography>
+                              <AccessTimeIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+                              <Typography variant="body2" color="text.secondary">Duration: {prescription.duration} days</Typography>
                             </Stack>
                           )}
                           <Stack direction="row" spacing={0.75} alignItems="center">
                             <CalendarTodayIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                            <Typography variant="body2" color="text.secondary">Prescribed: {safeDateLabel(prescription.plantedDate)}</Typography>
+                            <Typography variant="body2" color="text.secondary">Prescribed: {safeDateLabel(prescription.startDate)}</Typography>
                           </Stack>
                         </Stack>
 
@@ -486,7 +486,7 @@ export default function PrescriptionsPage() {
       <PrescriptionDialog
         open={dialogOpen}
         mode={dialogMode}
-        initialValues={editPrescriptionData || { name: "", dosage: "", area: "", plantedDate: "", status: "Prescribed", notes: "" }}
+        initialValues={editPrescriptionData || { name: "", dosage: "", duration: "", startDate: "", status: "Prescribed", notes: "" }}
         onClose={() => setDialogOpen(false)}
         onSave={handleSave}
         saving={saving}

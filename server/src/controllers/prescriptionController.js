@@ -13,7 +13,7 @@ const createPrescriptionSchema = z
   .object({
     name: z.string().min(1).max(120),
     dosage: z.string().max(120).optional().default(""),
-    area: z.union([z.number(), z.string()]).optional(),
+    duration: z.union([z.number(), z.string()]).optional(),
     startDate: z.union([z.string(), z.date()]).optional(),
     status: z.enum(["Prescribed", "Active", "Completed", "Archived"]).optional(),
     notes: z.string().max(2000).optional().default(""),
@@ -26,21 +26,21 @@ const updatePrescriptionSchema = z
   .object({
     name: z.string().min(1).max(120).optional(),
     dosage: z.string().max(120).optional(),
-    area: z.union([z.number(), z.string(), z.null()]).optional(),
+    duration: z.union([z.number(), z.string(), z.null()]).optional(),
     startDate: z.union([z.string(), z.date(), z.null()]).optional(),
     status: z.enum(["Prescribed", "Active", "Completed", "Archived"]).optional(),
     notes: z.string().max(2000).optional(),
   })
   .strict();
 
-function coerceArea(value) {
+function coerceDuration(value) {
   if (value === undefined) return undefined;
   if (value === null) return null;
   if (typeof value === "number") return value;
   const trimmed = String(value).trim();
   if (!trimmed) return null;
   const num = Number(trimmed);
-  if (Number.isNaN(num)) throw new Error("Invalid area");
+  if (Number.isNaN(num)) throw new Error("Invalid duration");
   return num;
 }
 
@@ -177,14 +177,14 @@ export const createPrescription = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "Invalid ownerId" });
     }
 
-    const area = coerceArea(parsed.area);
+    const duration = coerceDuration(parsed.duration);
     const startDate = coerceDate(parsed.startDate);
 
     const prescription = await Prescription.create({
       ownerId,
       name: parsed.name,
       dosage: parsed.dosage,
-      area: area === undefined ? null : area,
+      duration: duration === undefined ? null : duration,
       startDate: startDate === undefined ? null : startDate,
       status: parsed.status || "Prescribed",
       notes: parsed.notes,
@@ -246,8 +246,8 @@ export const updatePrescription = asyncHandler(async (req, res) => {
 
     const parsed = updatePrescriptionSchema.parse(req.body);
 
-    if ("area" in parsed) {
-      prescription.area = coerceArea(parsed.area);
+    if ("duration" in parsed) {
+      prescription.duration = coerceDuration(parsed.duration);
     }
     if ("startDate" in parsed) {
       prescription.startDate = coerceDate(parsed.startDate);

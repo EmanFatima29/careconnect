@@ -20,11 +20,14 @@ import {
   Paper,
   Stack,
   Typography,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import LayersIcon from "@mui/icons-material/Layers";
 import CloseIcon from "@mui/icons-material/Close";
 import NavigationIcon from "@mui/icons-material/Navigation";
+import StarIcon from "@mui/icons-material/Star";
 
 // ── Tile layer configs ──────────────────────────────────
 const TILE_LAYERS = {
@@ -44,37 +47,39 @@ const TILE_LAYERS = {
 };
 const LAYER_KEYS = Object.keys(TILE_LAYERS);
 
-// ── Custom icons ────────────────────────────────────────
-const patientIcon = (online) =>
-  L.divIcon({
-    className: "",
-    html: `<div style="width:28px;height:28px;border-radius:50%;background:${online ? "#2e7d32" : "#9e9e9e"};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14],
-  });
+// ── Role color/label palette (mirrors mapUtils.js) ──────
+const MONITORING_ROLE_COLORS = {
+  patient:  "#1976d2",
+  doctor:   "#2e7d32",
+  pharmacy: "#ed6c02",
+  admin:    "#c62828",
+};
+const MONITORING_ROLE_LABELS = {
+  patient:  "P",
+  doctor:   "Dr",
+  pharmacy: "Rx",
+  admin:    "A",
+};
+const MONITORING_ROLE_DISPLAY = {
+  patient:  "Patient",
+  doctor:   "Doctor",
+  pharmacy: "Pharmacy",
+  admin:    "Admin",
+};
 
-const fieldIcon = (status) => {
-  const color =
-    status === "healthy"
-      ? "#4caf50"
-      : status === "stressed"
-        ? "#ff9800"
-        : status === "declining"
-          ? "#f57c00"
-          : status === "critical"
-            ? "#f44336"
-            : "#78909c";
+// ── Role-aware icon factory ──────────────────────────────
+const makeUserIcon = (role = "patient", online = true) => {
+  const color = MONITORING_ROLE_COLORS[role] || MONITORING_ROLE_COLORS.patient;
+  const label = MONITORING_ROLE_LABELS[role] || "P";
+  const opacity = online ? 1 : 0.55;
   return L.divIcon({
     className: "",
-    html: `<div style="width:26px;height:26px;border-radius:6px;background:${color};border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M19.5 12c.93 0 1.78.28 2.5.76V8c0-1.1-.9-2-2-2h-6.29l-1.06-1.06 1.41-1.41-.71-.71-3.53 3.53.71.71 1.41-1.41L13 6.71V9c0 1.1-.9 2-2 2H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6.69A6.508 6.508 0 0 1 19.5 12z"/></svg>
+    html: `<div style="width:32px;height:32px;border-radius:50%;background:${color};opacity:${opacity};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+      <span style="color:white;font-size:${label.length > 1 ? "8" : "11"}px;font-weight:800;line-height:1;">${label}</span>
     </div>`,
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-    popupAnchor: [0, -13],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
   });
 };
 
@@ -175,6 +180,12 @@ export default function AdminMonitoringMap({
   const [myLocation, setMyLocation] = React.useState(null);
   const [routeInfo, setRouteInfo] = React.useState(null);
   const [locating, setLocating] = React.useState(false);
+  const [roleFilter, setRoleFilter] = React.useState("all");
+
+  const filteredPatients = React.useMemo(() => {
+    if (roleFilter === "all") return patients;
+    return patients.filter((p) => (p.roles || "patient") === roleFilter);
+  }, [patients, roleFilter]);
 
   // Get admin's location
   const handleLocateMe = React.useCallback(() => {
@@ -267,44 +278,52 @@ export default function AdminMonitoringMap({
           </>
         )}
 
-        {/* Patient markers */}
-        {patients.map((patient) => {
+        {/* User markers (role-aware) */}
+        {filteredPatients.map((patient) => {
           const coords = patient.location?.coordinates;
           if (!coords || (coords[0] === 0 && coords[1] === 0)) return null;
+          const role = patient.roles || "patient";
+          const roleColor = MONITORING_ROLE_COLORS[role] || MONITORING_ROLE_COLORS.patient;
+          const roleDisplay = MONITORING_ROLE_DISPLAY[role] || "Patient";
+          const hasRating = patient.ratingSummary?.totalRatings > 0;
+
           return (
             <Marker
               key={patient._id}
               position={[coords[1], coords[0]]}
-              icon={patientIcon(patient.status === "online")}
+              icon={makeUserIcon(role, patient.status === "online")}
               eventHandlers={{ click: () => onSelectPatient?.(patient) }}
             >
               <Popup>
-                <Box sx={{ minWidth: 180 }}>
+                <Box sx={{ minWidth: 190 }}>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {patient.name}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
                     {patient.email}
                   </Typography>
-                  <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
+                  <Stack direction="row" spacing={0.5} sx={{ mt: 0.75 }} flexWrap="wrap">
+                    <Chip
+                      size="small"
+                      label={roleDisplay}
+                      sx={{ height: 18, fontSize: "0.6rem", fontWeight: 700, bgcolor: roleColor, color: "#fff" }}
+                    />
                     <Chip
                       size="small"
                       label={patient.status === "online" ? "Online" : "Offline"}
-                      color={
-                        patient.status === "online" ? "success" : "default"
-                      }
+                      color={patient.status === "online" ? "success" : "default"}
                       variant="outlined"
-                      sx={{ height: 20, fontSize: "0.65rem" }}
+                      sx={{ height: 18, fontSize: "0.6rem" }}
                     />
-                    {patient.address?.city && (
-                      <Chip
-                        size="small"
-                        label={patient.address.city}
-                        variant="outlined"
-                        sx={{ height: 20, fontSize: "0.65rem" }}
-                      />
-                    )}
                   </Stack>
+                  {hasRating && (
+                    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.5 }}>
+                      <StarIcon sx={{ fontSize: 12, color: "warning.main" }} />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        {patient.ratingSummary.averageRating.toFixed(1)} ({patient.ratingSummary.totalRatings})
+                      </Typography>
+                    </Stack>
+                  )}
                   <Button
                     size="small"
                     fullWidth
@@ -449,6 +468,32 @@ export default function AdminMonitoringMap({
         >
           <LayersIcon fontSize="small" />
         </IconButton>
+      </Paper>
+
+      {/* Role filter */}
+      <Paper
+        sx={{ position: "absolute", top: 12, left: 12, zIndex: 1000, borderRadius: 2, p: 1 }}
+        elevation={3}
+      >
+        <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.6rem", display: "block", mb: 0.5, color: "text.secondary" }}>
+          Filter by Role
+        </Typography>
+        <ToggleButtonGroup
+          value={roleFilter}
+          exclusive
+          onChange={(_, v) => { if (v) setRoleFilter(v); }}
+          size="small"
+          orientation="vertical"
+          sx={{ "& .MuiToggleButton-root": { py: 0.5, px: 1, textTransform: "none", fontSize: "0.7rem", fontWeight: 600, gap: 0.5 } }}
+        >
+          <ToggleButton value="all">All ({patients.length})</ToggleButton>
+          {["doctor", "pharmacy", "patient"].map((r) => (
+            <ToggleButton key={r} value={r}>
+              <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: MONITORING_ROLE_COLORS[r], mr: 0.5, flexShrink: 0 }} />
+              {MONITORING_ROLE_DISPLAY[r]}s ({patients.filter((p) => (p.roles || "patient") === r).length})
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Paper>
 
       {/* Layer indicator */}

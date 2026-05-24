@@ -19,6 +19,8 @@ import prescriptionReducer from "./prescriptionSlice";
 import adminReducer from "./adminSlice";
 import friendReducer from "./friendSlice";
 import notificationReducer from "./notificationSlice";
+import ratingReducer from "./ratingSlice";
+import appointmentReducer from "./appointmentSlice";
 
 // Only use localStorage on client
 const createNoopStorage = () => ({
@@ -51,6 +53,8 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   friend: friendReducer,
   notification: notificationReducer,
+  rating: ratingReducer,
+  appointment: appointmentReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

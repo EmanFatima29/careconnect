@@ -6,6 +6,10 @@
 *.log
 npm-debug.log*
 
+# Application logs (runtime-generated, not source)
+**/logs/*.jsonl
+**/logs/*.log
+
 # Python
 **/__pycache__/
 **/*.pyc

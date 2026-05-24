@@ -7,6 +7,8 @@ import {
   analyzePrescriptionDisease,
   getSatelliteData,
   getPatientHealthReport,
+  analyzePatientSymptoms,
+  assessVitals,
 } from "../controllers/monitoringController.js";
 
 const router = express.Router();
@@ -30,5 +32,9 @@ router.get("/diagnostic/:prescriptionId", requireAuth, getSatelliteData);
 
 // Unified health report
 router.get("/health-report/:prescriptionId", requireAuth, getPatientHealthReport);
+
+// Healthcare AI: symptom checker and vitals assessment
+router.post("/analyze-symptoms", requireAuth, analyzePatientSymptoms);
+router.post("/assess-vitals",    requireAuth, assessVitals);
 
 export default router;

@@ -23,7 +23,7 @@ export function coerceRoles(roles) {
 /**
  * Infer the user's primary role for UI rendering.
  * @param {string|string[]|null} sessionRoles - from currentUser.roles or session.user.roles
- * @returns {"admin"|"doctor"|"patient"}
+ * @returns {"admin"|"doctor"|"pharmacy"|"patient"}
  */
 export function inferRole(sessionRoles) {
   const roles = coerceRoles(sessionRoles).map((r) => r.toLowerCase());
@@ -36,7 +36,10 @@ export function inferRole(sessionRoles) {
     return "doctor";
   }
 
-  // Default to patient for "user"/"patient" role or any other value
+  if (roles.some((r) => r.includes("pharmacy"))) {
+    return "pharmacy";
+  }
+
   return "patient";
 }
 
@@ -59,10 +62,19 @@ export function isDoctor(sessionRoles) {
 }
 
 /**
- * Check if current user is a patient (non-admin, non-doctor).
+ * Check if current user is a patient (non-admin, non-doctor, non-pharmacy).
  * @param {string|string[]|null} sessionRoles
  * @returns {boolean}
  */
 export function isPatient(sessionRoles) {
   return inferRole(sessionRoles) === "patient";
+}
+
+/**
+ * Check if current user is a pharmacy.
+ * @param {string|string[]|null} sessionRoles
+ * @returns {boolean}
+ */
+export function isPharmacy(sessionRoles) {
+  return inferRole(sessionRoles) === "pharmacy";
 }

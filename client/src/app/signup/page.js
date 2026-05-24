@@ -39,7 +39,15 @@ import {
   Person as PersonIcon,
   Visibility,
   VisibilityOff,
+  LocalHospital as LocalHospitalIcon,
+  LocalPharmacy as LocalPharmacyIcon,
+  Badge as BadgeIcon,
 } from "@mui/icons-material";
+import {
+  ToggleButtonGroup,
+  ToggleButton,
+  Collapse,
+} from "@mui/material";
 
 import { useTheme as useAppTheme } from "@/utils/ThemeContext";
 import { createMuiTheme } from "@/theme/muiTheme";
@@ -47,6 +55,7 @@ export default function Signup() {
   const { data: session } = useSession();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("patient");
   const { darkMode } = useAppTheme();
   const muiTheme = useTheme();
   const theme = createMuiTheme(darkMode ? "dark" : "light");
@@ -89,9 +98,25 @@ export default function Signup() {
       setSubmitError(null);
       setIsLoading((prev) => ({ ...prev, credentials: true }));
 
+      // Build payload with role and conditional profile fields
+      const payload = { ...data, roles: selectedRole };
+      if (selectedRole === "doctor") {
+        payload.doctorProfile = {
+          specialty: data.specialty || null,
+          licenseNumber: data.licenseNumber || null,
+        };
+      } else if (selectedRole === "pharmacy") {
+        payload.pharmacyProfile = {
+          licenseNumber: data.licenseNumber || null,
+        };
+      }
+      // Remove form-only fields from root payload
+      delete payload.specialty;
+      delete payload.licenseNumber;
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users`,
-        data,
+        payload,
       );
 
       if (response.status === 201) {
@@ -274,13 +299,38 @@ export default function Signup() {
                   spacing={3.5}
                 >
                   <Stack spacing={4.5}>
+                    {/* Role Selector */}
+                    <Stack spacing={1}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary", fontSize: "0.8rem" }}>
+                        I am signing up as:
+                      </Typography>
+                      <ToggleButtonGroup
+                        value={selectedRole}
+                        exclusive
+                        onChange={(_, v) => { if (v) setSelectedRole(v); }}
+                        fullWidth
+                        size="small"
+                        sx={{ "& .MuiToggleButton-root": { textTransform: "none", fontWeight: 600, fontSize: "0.8rem", py: 1, gap: 0.5 } }}
+                      >
+                        <ToggleButton value="patient">
+                          <PersonIcon sx={{ fontSize: 16 }} /> Patient
+                        </ToggleButton>
+                        <ToggleButton value="doctor">
+                          <LocalHospitalIcon sx={{ fontSize: 16 }} /> Doctor
+                        </ToggleButton>
+                        <ToggleButton value="pharmacy">
+                          <LocalPharmacyIcon sx={{ fontSize: 16 }} /> Pharmacy
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </Stack>
+
                     <TextField
                       fullWidth
                       label="Full Name"
                       type="text"
                       variant="outlined"
                       autoComplete="name"
-                      placeholder="John Patient"
+                      placeholder={selectedRole === "pharmacy" ? "Pharmacy Name" : selectedRole === "doctor" ? "Dr. John Smith" : "John Patient"}
                       {...register("name", {
                         required: "Name is required",
                         minLength: {
@@ -436,6 +486,49 @@ export default function Signup() {
                         },
                       }}
                     />
+
+                    {/* Doctor / Pharmacy extra fields */}
+                    <Collapse in={selectedRole === "doctor" || selectedRole === "pharmacy"} timeout={300}>
+                      <Stack spacing={4.5} sx={{ mt: 0.5 }}>
+                        {selectedRole === "doctor" && (
+                          <TextField
+                            fullWidth
+                            label="Medical Specialty"
+                            type="text"
+                            variant="outlined"
+                            placeholder="e.g. Cardiology, General Practice"
+                            {...register("specialty")}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <LocalHospitalIcon color="primary" />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ "& .MuiInputBase-input": { height: "40px", fontSize: "0.9rem", padding: "10px 12px" }, "& .MuiFormLabel-root": { top: -10 } }}
+                          />
+                        )}
+                        <TextField
+                          fullWidth
+                          label={selectedRole === "pharmacy" ? "Pharmacy License No." : "Medical License No."}
+                          type="text"
+                          variant="outlined"
+                          placeholder="e.g. PMC-123456"
+                          {...register("licenseNumber")}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <BadgeIcon color="primary" />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{ "& .MuiInputBase-input": { height: "40px", fontSize: "0.9rem", padding: "10px 12px" }, "& .MuiFormLabel-root": { top: -10 } }}
+                        />
+                        <Typography variant="caption" color="warning.main" sx={{ fontWeight: 500, display: "block" }}>
+                          Your account will require admin verification before appearing on the map.
+                        </Typography>
+                      </Stack>
+                    </Collapse>
                   </Stack>
 
                   {/* Submit Button */}

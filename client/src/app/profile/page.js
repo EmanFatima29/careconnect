@@ -57,6 +57,12 @@ import { inferRole } from "@/utils/roleUtils";
 import { ProfileSkeleton } from "@/components/UI/PageSkeletons";
 import { OfflineNotice } from "@/components/UI/NetworkBanner";
 import { getProfilePicUrl as _getProfilePicUrl } from "@/utils/profilePic";
+import dynamic from "next/dynamic";
+
+const RatingSummary = dynamic(
+  () => import("@/components/Rating/RatingSummary"),
+  { ssr: false },
+);
 
 const GENDER_OPTIONS = ["male", "female", "other"];
 const ACCOUNT_TYPE_OPTIONS = ["public", "limited", "private"];
@@ -428,6 +434,18 @@ export default function ProfilePage() {
 
         {/* Notification Settings */}
         <NotificationSettings />
+
+        {/* Ratings panel for doctors and pharmacies */}
+        {["doctor", "pharmacy"].includes(role) && currentUser && (
+          <Card sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+            <CardContent>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+                My Ratings
+              </Typography>
+              <RatingSummary targetUser={currentUser} currentUser={currentUser} />
+            </CardContent>
+          </Card>
+        )}
       </Stack>
 
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar((s) => ({ ...s, open: false }))}

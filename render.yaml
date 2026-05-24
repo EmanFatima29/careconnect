@@ -1,0 +1,72 @@
+services:
+  - type: web
+    name: careconnect-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # ── Runtime ──────────────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
+
+      # ── Database ─────────────────────────────────────────────
+      - key: MONGODB_URI
+        sync: false          # paste: mongodb+srv://root:<pass>@cluster0.sskffuf.mongodb.net/careconnect
+
+      # ── Auth (must match client NEXTAUTH_SECRET exactly) ─────
+      - key: NEXTAUTH_SECRET
+        sync: false          # paste the same 32-char secret used on Vercel
+      - key: INTERNAL_API_KEY
+        sync: false          # paste: a744832ccacda6226feb2bf15a89e3057bdd0abd967cd9e0df408f3b97245367
+
+      # ── CORS (set AFTER Vercel deployment gives you the URL) ─
+      - key: ORIGIN_URL
+        sync: false          # paste: https://<your-project>.vercel.app
+
+      # ── Redis (disabled by default; add Upstash URL later to enable) ──
+      - key: DISABLE_REDIS
+        value: "true"
+      - key: REDIS_URL
+        sync: false          # optional: rediss://...@...upstash.io:6379
+
+      # ── Cloudinary ────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        value: geoconnect
+      - key: CLOUDINARY_UPLOAD_PRESET
+        value: geoconnect_uploads
+      - key: CLOUDINARY_API_KEY
+        sync: false          # paste: 299414227756516
+      - key: CLOUDINARY_API_SECRET
+        sync: false          # paste from Cloudinary dashboard
+
+      # ── Email (Gmail SMTP) ────────────────────────────────────
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false          # paste Gmail address
+      - key: SMTP_PASS
+        sync: false          # paste Gmail App Password
+      - key: SMTP_FROM
+        value: '"CareConnect" <noreply@careconnect.app>'
+
+      # ── Web Push (VAPID) ─────────────────────────────────────
+      - key: VAPID_PUBLIC_KEY
+        sync: false          # paste from server/.env
+      - key: VAPID_PRIVATE_KEY
+        sync: false          # paste from server/.env
+      - key: VAPID_SUBJECT
+        value: mailto:admin@careconnect.app
+
+      # ── Internal services ─────────────────────────────────────
+      - key: SENTIMENT_API_URL
+        value: http://127.0.0.1:5001

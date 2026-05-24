@@ -4,25 +4,47 @@
 import L from "leaflet";
 
 // ========== CONSTANTS ==========
-export const MIN_RADIUS = 500; // meters
-export const MAX_RADIUS = 10000; // meters
-export const INITIAL_RADIUS = 1000; // meters
-export const COORDINATE_OFFSET = 0.00005; // degrees
-export const DEFAULT_UPDATE_INTERVAL = 10000; // 10 seconds
+export const MIN_RADIUS = 500;
+export const MAX_RADIUS = 10000;
+export const INITIAL_RADIUS = 1000;
+export const COORDINATE_OFFSET = 0.00005;
+export const DEFAULT_UPDATE_INTERVAL = 10000;
 
-// Default center: Pakistan (neutral center for this app)
+// Default center: Pakistan
 export const DEFAULT_CENTER = [30.3753, 69.3451];
 export const DEFAULT_ZOOM = 5;
 
-// Tile layer options for map layer switching
+// ========== ROLE COLORS & LABELS ==========
+export const ROLE_COLORS = {
+  patient:  "#1976d2", // blue
+  doctor:   "#2e7d32", // green
+  pharmacy: "#ed6c02", // orange
+  admin:    "#c62828", // red
+};
+
+export const ROLE_LABELS = {
+  patient:  "P",
+  doctor:   "Dr",
+  pharmacy: "Rx",
+  admin:    "A",
+};
+
+export const ROLE_DISPLAY = {
+  patient:  "Patient",
+  doctor:   "Doctor",
+  pharmacy: "Pharmacy",
+  admin:    "Admin",
+};
+
+// Tile layer options
 export const TILE_LAYERS = {
   standard: {
     label: "Standard",
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
   },
-  diagnostic: {
-    label: "Diagnostic",
+  satellite: {
+    label: "Satellite",
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     attribution: "Tiles &copy; Esri",
   },
@@ -35,60 +57,62 @@ export const TILE_LAYERS = {
 export const TILE_LAYER_KEYS = Object.keys(TILE_LAYERS);
 
 // ========== ICON HELPERS ==========
-function makeSvgIcon(svg, size, anchor) {
+function makeRoleIcon(color, label, isOnline = true) {
+  const opacity = isOnline ? 1 : 0.55;
   return L.divIcon({
     className: "",
-    html: svg,
-    iconSize: [size, size],
-    iconAnchor: anchor || [size / 2, size / 2],
-    popupAnchor: [0, -(size / 2)],
+    html: `<div style="
+      width:36px;height:36px;border-radius:50%;
+      background:${color};
+      opacity:${opacity};
+      border:3px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      display:flex;align-items:center;justify-content:center;">
+      <span style="color:white;font-size:${label.length > 1 ? "9" : "12"}px;font-weight:800;line-height:1;letter-spacing:-0.5px;">${label}</span>
+    </div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -20],
   });
 }
 
-// ========== ICON CONFIGURATION ==========
+// ========== ICON FACTORY ==========
 export const createIcons = () => ({
-  // Current user — pulsing green circle
-  userIcon: (() => {
-    const icon = L.divIcon({
-      className: "pulse-marker",
-      html: `<div style="width:36px;height:36px;border-radius:50%;background:#2e7d32;border:3px solid white;box-shadow:0 0 0 4px rgba(46,125,50,0.3),0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-        <div style="width:12px;height:12px;border-radius:50%;background:white;"></div>
-      </div>`,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
-      popupAnchor: [0, -18],
-    });
-    return icon;
-  })(),
+  // Current user — pulsing purple marker
+  userIcon: L.divIcon({
+    className: "pulse-marker",
+    html: `<div style="width:38px;height:38px;border-radius:50%;background:#7b1fa2;border:3px solid white;box-shadow:0 0 0 5px rgba(123,31,162,0.25),0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+      <div style="width:12px;height:12px;border-radius:50%;background:white;"></div>
+    </div>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 19],
+    popupAnchor: [0, -20],
+  }),
 
-  // Online user — green marker
-  onlineIcon: makeSvgIcon(
-    `<div style="width:30px;height:30px;border-radius:50%;background:#2e7d32;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>`, 30
-  ),
+  // Patient icons
+  patientOnline:   makeRoleIcon(ROLE_COLORS.patient,  ROLE_LABELS.patient,  true),
+  patientOffline:  makeRoleIcon(ROLE_COLORS.patient,  ROLE_LABELS.patient,  false),
 
-  // Offline user — grey marker
-  offlineIcon: makeSvgIcon(
-    `<div style="width:30px;height:30px;border-radius:50%;background:#9e9e9e;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>`, 30
-  ),
+  // Doctor icons
+  doctorOnline:    makeRoleIcon(ROLE_COLORS.doctor,   ROLE_LABELS.doctor,   true),
+  doctorOffline:   makeRoleIcon(ROLE_COLORS.doctor,   ROLE_LABELS.doctor,   false),
 
-  // Friend (online) — green with star
-  friendOnlineIcon: makeSvgIcon(
-    `<div style="width:30px;height:30px;border-radius:50%;background:#1565c0;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>`, 30
-  ),
+  // Pharmacy icons
+  pharmacyOnline:  makeRoleIcon(ROLE_COLORS.pharmacy, ROLE_LABELS.pharmacy, true),
+  pharmacyOffline: makeRoleIcon(ROLE_COLORS.pharmacy, ROLE_LABELS.pharmacy, false),
 
-  // Friend (offline) — blue-grey
-  friendOfflineIcon: makeSvgIcon(
-    `<div style="width:30px;height:30px;border-radius:50%;background:#5c6bc0;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>`, 30
-  ),
+  // Admin icons
+  adminOnline:     makeRoleIcon(ROLE_COLORS.admin,    ROLE_LABELS.admin,    true),
+  adminOffline:    makeRoleIcon(ROLE_COLORS.admin,    ROLE_LABELS.admin,    false),
 });
+
+// ========== GET ROLE ICON ==========
+export const getUserIcon = (icons, user) => {
+  const role = user.roles || "patient";
+  const isOnline = user.status === "online";
+  const key = `${role}${isOnline ? "Online" : "Offline"}`;
+  return icons[key] || (isOnline ? icons.patientOnline : icons.patientOffline);
+};
 
 // ========== HELPER FUNCTIONS ==========
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -111,13 +135,6 @@ export const formatCoordinates = (lat, lng) =>
 export const offsetCoordinates = ([lat, lng], index) => {
   const offset = COORDINATE_OFFSET * index;
   return [lat + offset, lng + offset];
-};
-
-export const getUserIcon = (icons, user, friendIds) => {
-  const isFriend = friendIds?.has(user._id);
-  const isOnline = user.status === "online";
-  if (isFriend) return isOnline ? icons.friendOnlineIcon : icons.friendOfflineIcon;
-  return isOnline ? icons.onlineIcon : icons.offlineIcon;
 };
 
 export const getProfilePicUrl = (user) => {

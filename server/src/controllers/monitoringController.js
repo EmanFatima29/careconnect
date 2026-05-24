@@ -7,8 +7,8 @@ import {
   formatMediaResponse,
 } from "../services/mediaService.js";
 import Prescription from "../models/prescriptionModel.js";
-import { detectPrescriptionDisease } from "../services/symptomAnalysisService.js";
-import { getFieldHealth } from "../services/diagnosticService.js";
+import { detectPrescriptionDisease, analyzeSymptoms } from "../services/symptomAnalysisService.js";
+import { getFieldHealth, assessPatientVitals, calculateBMI } from "../services/diagnosticService.js";
 
 /**
  * POST /api/monitoring/upload
@@ -69,7 +69,7 @@ export const getMonitoringImages = asyncHandler(async (req, res) => {
 
 /**
  * POST /api/monitoring/analyze-disease/:prescriptionId
- * Analyze uploaded image for prescription diseases using Agent Prescription API (free).
+ * Submit prescription image for review (automated analysis placeholder).
  */
 export const analyzePrescriptionDisease = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
@@ -80,38 +80,32 @@ export const analyzePrescriptionDisease = asyncHandler(async (req, res) => {
   if (!imageUrl) return sendError(res, "imageUrl is required", 400);
 
   try {
-    const result = await detectCropDisease(imageUrl);
-    if (!result) return sendError(res, "Disease detection service unavailable", 503);
+    const result = await detectPrescriptionDisease(imageUrl, req.body.notes);
 
-    // Update prescription health history
     if (prescriptionId) {
       await Prescription.findByIdAndUpdate(prescriptionId, {
         $push: {
           healthHistory: {
             date: new Date(),
-            diseaseDetected: result.disease,
-            confidence: result.confidence,
-            recommendations: result.treatment ? [result.treatment] : [],
+            symptomAnalysis: "Image submitted for review",
+            recommendations: ["Awaiting doctor review"],
             source: "photo",
           },
         },
-        $set: {
-          "currentHealth.status": result.disease ? "stressed" : "healthy",
-          "currentHealth.lastChecked": new Date(),
-        },
+        $set: { "currentHealth.lastChecked": new Date() },
       });
     }
 
     return sendSuccess(res, result);
   } catch (error) {
-    logger.error("[Monitoring] Disease analysis failed:", error);
+    logger.error("[Monitoring] Image analysis failed:", error);
     return sendError(res, "Analysis failed", 500);
   }
 });
 
 /**
  * GET /api/monitoring/diagnostic/:prescriptionId
- * Get diagnostic health data from Sentinel GreenReport Plus (free).
+ * Get health data derived from stored prescription health history.
  */
 export const getSatelliteData = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
@@ -120,44 +114,38 @@ export const getSatelliteData = asyncHandler(async (req, res) => {
   const prescription = await Prescription.findById(req.params.prescriptionId).lean();
   if (!prescription) return sendError(res, "Prescription not found", 404);
 
-  const coords = prescription.location?.coordinates;
-  if (!coords || (coords[0] === 0 && coords[1] === 0)) {
-    return sendError(res, "Prescription location not set", 400);
-  }
-
-  const days = parseInt(req.query.days) || 30;
-
   try {
-    const result = await getFieldHealth({
-      latitude: coords[1],
-      longitude: coords[0],
-      prescriptionType: prescription.name?.toLowerCase(),
-      days,
-    });
-
-    if (!result) return sendError(res, "Diagnostic service unavailable", 503);
-
-    await Prescription.findByIdAndUpdate(req.params.prescriptionId, {
-      $push: {
-        healthHistory: {
-          date: new Date(),
-          vitals: result.currentNDVI,
-          healthStatus: result.healthStatus,
-          source: "diagnostic",
-        },
-      },
-      $set: {
-        "currentHealth.vitals": result.currentNDVI,
-        "currentHealth.status": result.healthStatus,
-        "currentHealth.lastChecked": new Date(),
-      },
-    });
-
+    const result = await getFieldHealth({ prescriptionRecord: prescription });
+    if (!result) return sendError(res, "Diagnostic data unavailable", 503);
     return sendSuccess(res, result);
   } catch (error) {
     logger.error("[Monitoring] Diagnostic data failed:", error);
     return sendError(res, "Diagnostic analysis failed", 500);
   }
+});
+
+/**
+ * POST /api/monitoring/analyze-symptoms
+ * Analyze patient-reported symptoms against a healthcare knowledge base.
+ */
+export const analyzePatientSymptoms = asyncHandler(async (req, res) => {
+  const { symptoms, age, gender } = req.body;
+  if (!Array.isArray(symptoms) || symptoms.length === 0) {
+    return sendError(res, "symptoms array is required", 400);
+  }
+  const result = analyzeSymptoms({ symptoms, age, gender });
+  return sendSuccess(res, result);
+});
+
+/**
+ * POST /api/monitoring/assess-vitals
+ * Assess patient vital signs and return a health score.
+ */
+export const assessVitals = asyncHandler(async (req, res) => {
+  const { heartRate, systolic, diastolic, temperature, oxygenSaturation, weightKg, heightCm } = req.body;
+  const bmi = calculateBMI(weightKg, heightCm);
+  const result = assessPatientVitals({ heartRate, systolic, diastolic, temperature, oxygenSaturation, bmi });
+  return sendSuccess(res, { ...result, bmi });
 });
 
 /**

@@ -57,6 +57,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import api from "@/lib/api";
 import logger from "@/lib/logger";
 import { useSession } from "next-auth/react";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import { useSelector } from "react-redux";
 import { inferRole } from "@/utils/roleUtils";
 import { createDashboardCardSx } from "@/utils/themeUtils";
@@ -242,6 +243,7 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
           <Tab icon={<MedicalServicesIcon />} iconPosition="start" label="Prescription Health" />
           <Tab icon={<HistoryIcon />} iconPosition="start" label="Visit History" />
           <Tab icon={<BarChartIcon />} iconPosition="start" label="Analytics" />
+          <Tab icon={<MonitorHeartIcon />} iconPosition="start" label="Symptom Checker" />
         </Tabs>
 
         <Box sx={{ p: { xs: 1.5, sm: 2.5 } }}>
@@ -327,7 +329,7 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
                                 <Chip size="small" label={prescription.status} color={prescription.status === "Active" ? "success" : prescription.status === "Prescribed" ? "primary" : "default"} variant="outlined" />
                               </Stack>
                               {prescription.dosage && <Typography variant="caption" color="text.secondary">Dosage: {prescription.dosage}</Typography>}
-                              {prescription.area > 0 && <Typography variant="caption" color="text.secondary">Area: {prescription.area}</Typography>}
+                              {prescription.duration > 0 && <Typography variant="caption" color="text.secondary">Duration: {prescription.duration} days</Typography>}
                               <Divider />
                               <Stack direction="row" spacing={1} alignItems="center">
                                 <Typography variant="body2" sx={{ fontWeight: 600 }}>Health:</Typography>
@@ -427,6 +429,11 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
             </Card>
           )}
 
+          {/* Tab 4: Symptom Checker */}
+          {activeTab === 4 && (
+            <SymptomChecker />
+          )}
+
           {/* Tab 3: Analytics */}
           {activeTab === 3 && (
             <Stack spacing={2}>
@@ -454,7 +461,7 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
                   </Grid>
                   <Card variant="outlined" sx={{ borderRadius: 2 }}>
                     <CardContent>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>Prescription Area by Type</Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>Prescriptions by Type</Typography>
                       {(!analytics?.acreage || analytics.acreage.length === 0) ? (
                         <Typography variant="body2" color="text.secondary">No prescription data available.</Typography>
                       ) : (
@@ -465,9 +472,9 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
                               <Box sx={{ flex: 1 }}>
                                 <Stack direction="row" justifyContent="space-between">
                                   <Typography variant="body2" sx={{ fontWeight: 600 }}>{prescription._id}</Typography>
-                                  <Typography variant="body2" color="text.secondary">{prescription.totalArea || 0} ({prescription.count} care units)</Typography>
+                                  <Typography variant="body2" color="text.secondary">{prescription.count} prescriptions</Typography>
                                 </Stack>
-                                <LinearProgress variant="determinate" value={Math.min((prescription.totalArea / (analytics.acreage[0]?.totalArea || 1)) * 100, 100)} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
+                                <LinearProgress variant="determinate" value={Math.min((prescription.count / (analytics.acreage[0]?.count || 1)) * 100, 100)} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
                               </Box>
                             </Stack>
                           ))}
@@ -506,6 +513,8 @@ const PatientMonitoring = React.memo(function PatientMonitoring() {
     </Stack>
   );
 });
+
+const SymptomChecker = dynamic(() => import("@/components/HealthMetrics/SymptomChecker"), { ssr: false });
 
 // ═══════════════════════════════════════════════════════
 // Admin Map Component — dynamically loaded (SSR-safe)
@@ -668,7 +677,7 @@ const AdminMonitoring = React.memo(function AdminMonitoring() {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Chip icon={<PeopleIcon sx={{ fontSize: "14px !important" }} />} label={`${stats.totalFarmers || stats.totalPatients || 0} Patients`} size="small" color="primary" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
                 <Chip icon={<LocalHospitalIcon sx={{ fontSize: "14px !important" }} />} label={`${stats.totalFields || stats.totalUnits || 0} Care Units`} size="small" color="success" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
-                <Chip icon={<MapIcon sx={{ fontSize: "14px !important" }} />} label={`${stats.totalArea || 0}`} size="small" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
+                <Chip icon={<MapIcon sx={{ fontSize: "14px !important" }} />} label={`${stats.totalPrescriptions || stats.totalFields || stats.totalUnits || 0} prescriptions`} size="small" variant="outlined" sx={{ fontWeight: 600, height: 28 }} />
                 <IconButton size="small" onClick={fetchMapData} sx={{ border: 1, borderColor: "divider", borderRadius: 2, transition: "all 0.3s", "&:hover": { transform: "rotate(180deg)", borderColor: "primary.main" } }}>
                   <RefreshIcon fontSize="small" />
                 </IconButton>
@@ -762,7 +771,7 @@ const AdminMonitoring = React.memo(function AdminMonitoring() {
                           <Divider />
                           <Stack direction="row" spacing={1} flexWrap="wrap">
                             <Chip size="small" label={`${patientDetails.stats?.totalPrescriptions || patientDetails.stats?.totalCrops || 0} Prescriptions`} variant="outlined" sx={{ height: 24 }} />
-                            <Chip size="small" label={`Total Area: ${patientDetails.stats?.totalArea || 0}`} variant="outlined" sx={{ height: 24 }} />
+                            <Chip size="small" label={`${patientDetails.stats?.totalPrescriptions || 0} Prescriptions`} variant="outlined" sx={{ height: 24 }} />
                             <Chip size="small" label={`${patientDetails.stats?.totalVisits || 0} Visits`} variant="outlined" sx={{ height: 24 }} />
                           </Stack>
                           {patientDetails.prescriptions?.length > 0 && (
@@ -795,7 +804,7 @@ const AdminMonitoring = React.memo(function AdminMonitoring() {
                         <Avatar sx={{ bgcolor: "success.main", width: 40, height: 40 }}><MedicalServicesIcon /></Avatar>
                         <Box>
                           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{selectedField.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">{selectedField.dosage || "No dosage"} · Area: {selectedField.area || 0}</Typography>
+                          <Typography variant="caption" color="text.secondary">{selectedField.dosage || "No dosage"}{selectedField.duration ? ` · ${selectedField.duration} days` : ""}</Typography>
                         </Box>
                       </Stack>
                       <Stack direction="row" spacing={0.75} flexWrap="wrap">
@@ -936,7 +945,7 @@ const AdminMonitoring = React.memo(function AdminMonitoring() {
                           primary={<Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>{ward.name}</Typography>}
                           secondary={
                             <Typography variant="caption" color="text.secondary" noWrap>
-                              {ward.ownerId?.name || "Unknown"} · Area: {ward.area || 0} · {ward.status}
+                              {ward.ownerId?.name || "Unknown"}{ward.duration ? ` · ${ward.duration} days` : ""} · {ward.status}
                             </Typography>
                           }
                         />

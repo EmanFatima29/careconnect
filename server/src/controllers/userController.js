@@ -31,10 +31,12 @@ const PASSWORD_RULES = "Password must be at least 8 characters with uppercase, l
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
+const ALLOWED_SIGNUP_ROLES = ["patient", "doctor", "pharmacy"];
+
 // Create or update a user
 export const createUser = asyncHandler(async (req, res) => {
   try {
-    const { name, email, phone, profilePic, password, socialAccounts } =
+    const { name, email, phone, profilePic, password, socialAccounts, roles: rawRoles, doctorProfile, pharmacyProfile } =
       req.body;
 
     // Normalize email to lowercase (DB stores emails as lowercase)
@@ -67,6 +69,9 @@ export const createUser = asyncHandler(async (req, res) => {
     // OAuth users are auto-verified; credentials users need email verification
     const isOAuth = socialAccountsArr.length > 0;
 
+    // Validate and coerce role — only allow patient/doctor/pharmacy on self-signup
+    const requestedRole = ALLOWED_SIGNUP_ROLES.includes(rawRoles) ? rawRoles : "patient";
+
     user = new User({
       name: name.trim(),
       email: normalizedEmail,
@@ -74,7 +79,21 @@ export const createUser = asyncHandler(async (req, res) => {
       password: hashedPassword,
       socialAccounts: socialAccountsArr,
       profilePic: profilePic ? profilePic : null,
-      emailVerified: isOAuth, // OAuth users are pre-verified
+      emailVerified: isOAuth,
+      roles: requestedRole,
+      ...(requestedRole === "doctor" && doctorProfile ? {
+        doctorProfile: {
+          specialty: doctorProfile.specialty?.trim() || null,
+          licenseNumber: doctorProfile.licenseNumber?.trim() || null,
+          verified: false,
+        },
+      } : {}),
+      ...(requestedRole === "pharmacy" && pharmacyProfile ? {
+        pharmacyProfile: {
+          licenseNumber: pharmacyProfile.licenseNumber?.trim() || null,
+          verified: false,
+        },
+      } : {}),
     });
 
     // Generate email verification token for credentials signup

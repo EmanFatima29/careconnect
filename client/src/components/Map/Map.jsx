@@ -61,6 +61,8 @@ import {
   DEFAULT_UPDATE_INTERVAL,
   TILE_LAYERS,
   TILE_LAYER_KEYS,
+  ROLE_COLORS,
+  ROLE_DISPLAY,
   createIcons,
   calculateDistance,
   formatCoordinates,
@@ -79,6 +81,7 @@ import {
 } from "./MapSubComponents";
 
 import { RouteControl, RouteInfoPanel } from "./RouteDisplay";
+import { inferRole } from "@/utils/roleUtils";
 
 // ========== MAIN MAP COMPONENT ==========
 export default function EnhancedMap() {
@@ -90,6 +93,7 @@ export default function EnhancedMap() {
 
   // Redux State
   const currentUser = useSelector((state) => state.user?.currentUser);
+  const currentUserRole = inferRole(currentUser?.roles);
   const nearbyUsersRedux = useSelector(
     (state) => state.group?.nearbyUsers || [],
   );
@@ -97,12 +101,7 @@ export default function EnhancedMap() {
   const reduxLoading = useSelector((state) => state.group?.loading || false);
   const reduxError = useSelector((state) => state.group?.error || null);
   const friends = useSelector((state) => state.friend?.friends || []);
-
-  // Friend IDs set for O(1) lookup
-  const friendIds = useMemo(
-    () => new Set(friends.map((f) => f._id)),
-    [friends],
-  );
+  const friendIds = useMemo(() => new Set(friends.map((f) => f._id)), [friends]);
 
   // Local State
   const [tileLayerKey, setTileLayerKey] = useState("standard");
@@ -733,7 +732,7 @@ export default function EnhancedMap() {
                     lng,
                   )
                 : 0;
-              const icon = getUserIcon(icons, user, friendIds);
+              const icon = getUserIcon(icons, user);
               const isFriend = friendIds.has(user._id);
 
               // Ensure a stable unique key: prefer user._id, fall back to email + index
@@ -756,6 +755,7 @@ export default function EnhancedMap() {
                       }
                       showDistance={state.settings.showDistance}
                       isFriend={isFriend}
+                      currentUserRole={currentUserRole}
                     />
                   </Popup>
                 </Marker>
@@ -828,32 +828,17 @@ export default function EnhancedMap() {
             elevation={2}
           >
             <Stack spacing={0.25}>
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: 700, fontSize: "0.6rem" }}
-              >
+              <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.6rem" }}>
                 Legend
               </Typography>
               {[
-                { color: "#2e7d32", label: "Online" },
-                { color: "#9e9e9e", label: "Offline" },
-                { color: "#1565c0", label: "Friend (on)" },
-                { color: "#5c6bc0", label: "Friend (off)" },
+                { color: ROLE_COLORS.doctor,   label: ROLE_DISPLAY.doctor },
+                { color: ROLE_COLORS.pharmacy, label: ROLE_DISPLAY.pharmacy },
+                { color: ROLE_COLORS.patient,  label: ROLE_DISPLAY.patient },
+                { color: "#7b1fa2",            label: "You" },
               ].map((item) => (
-                <Stack
-                  key={item.label}
-                  direction="row"
-                  spacing={0.5}
-                  alignItems="center"
-                >
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      bgcolor: item.color,
-                    }}
-                  />
+                <Stack key={item.label} direction="row" spacing={0.5} alignItems="center">
+                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: item.color }} />
                   <Typography variant="caption" sx={{ fontSize: "0.55rem" }}>
                     {item.label}
                   </Typography>

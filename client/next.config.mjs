@@ -57,8 +57,8 @@ const nextConfig = {
     ],
   },
 
-  // ---- Output ('standalone' required by Docker for minimal production image) ----
-  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+  // ---- Output ('standalone' required by Docker; Vercel manages its own bundling) ----
+  output: process.env.NODE_ENV === "production" && !process.env.VERCEL ? "standalone" : undefined,
   outputFileTracingRoot: path.join(__dirname, ".."),
 };
 

@@ -5,6 +5,7 @@ import Prescription from "../models/prescriptionModel.js";
 import Chat from "../models/chatModel.js";
 import Message from "../models/messageModel.js";
 import ActivityLog from "../models/activityLogModel.js";
+import Appointment from "../models/appointmentModel.js";
 
 const clampInt = (value, fallback, { min, max }) => {
   const n = parseInt(String(value ?? ""), 10);
@@ -90,9 +91,7 @@ export const getCropSummaries = asyncHandler(async (req, res) => {
       totalPrescriptions,
       prescriptionsCreatedInRange,
       byStatus,
-      areaSummary,
       topByCount,
-      topByArea,
     ] = await Promise.all([
       Prescription.countDocuments({}),
       Prescription.countDocuments({ createdAt: { $gte: from, $lte: to } }),
@@ -102,35 +101,9 @@ export const getCropSummaries = asyncHandler(async (req, res) => {
         { $sort: { count: -1, status: 1 } },
       ]),
       Prescription.aggregate([
-        {
-          $group: {
-            _id: null,
-            totalArea: { $sum: { $ifNull: ["$area", 0] } },
-            avgArea: { $avg: "$area" },
-            cropsWithArea: {
-              $sum: {
-                $cond: [
-                  { $and: [{ $ne: ["$area", null] }, { $gt: ["$area", 0] }] },
-                  1,
-                  0,
-                ],
-              },
-            },
-          },
-        },
-        { $project: { _id: 0, totalArea: 1, avgArea: 1, cropsWithArea: 1 } },
-      ]),
-      Prescription.aggregate([
         { $group: { _id: "$name", count: { $sum: 1 } } },
         { $project: { _id: 0, name: "$_id", count: 1 } },
         { $sort: { count: -1, name: 1 } },
-        { $limit: 10 },
-      ]),
-      Prescription.aggregate([
-        { $match: { area: { $ne: null } } },
-        { $group: { _id: "$name", totalArea: { $sum: "$area" } } },
-        { $project: { _id: 0, name: "$_id", totalArea: 1 } },
-        { $sort: { totalArea: -1, name: 1 } },
         { $limit: 10 },
       ]),
     ]);
@@ -140,13 +113,7 @@ export const getCropSummaries = asyncHandler(async (req, res) => {
       range: { from, to },
       prescriptionsCreatedInRange,
       byStatus,
-      areaSummary: areaSummary?.[0] || {
-        totalArea: 0,
-        avgArea: null,
-        cropsWithArea: 0,
-      },
       topByCount,
-      topByArea,
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -290,4 +257,89 @@ export const listActivityLogs = asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
+});
+
+// ── Healthcare Admin Endpoints ─────────────────────────────────────────
+
+/**
+ * GET /api/admin/pending-verifications
+ * List doctors and pharmacies awaiting admin approval (verified=false).
+ */
+export const getPendingVerifications = asyncHandler(async (req, res) => {
+  const [doctors, pharmacies] = await Promise.all([
+    User.find({ roles: "doctor", "doctorProfile.verified": false })
+      .select("name email createdAt doctorProfile profilePic")
+      .sort({ createdAt: -1 })
+      .lean(),
+    User.find({ roles: "pharmacy", "pharmacyProfile.verified": false })
+      .select("name email createdAt pharmacyProfile profilePic")
+      .sort({ createdAt: -1 })
+      .lean(),
+  ]);
+  return res.status(200).json({ doctors, pharmacies, total: doctors.length + pharmacies.length });
+});
+
+/**
+ * PATCH /api/admin/verify/:userId
+ * Approve a doctor or pharmacy — sets their profile.verified = true.
+ */
+export const verifyProfessional = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  if (user.roles === "doctor") {
+    user.doctorProfile = user.doctorProfile || {};
+    user.doctorProfile.verified = true;
+  } else if (user.roles === "pharmacy") {
+    user.pharmacyProfile = user.pharmacyProfile || {};
+    user.pharmacyProfile.verified = true;
+  } else {
+    return res.status(400).json({ error: "User is not a doctor or pharmacy" });
+  }
+  await user.save();
+  return res.status(200).json({ success: true, userId: user._id, roles: user.roles });
+});
+
+/**
+ * PATCH /api/admin/reject/:userId
+ * Reject a doctor or pharmacy — keeps verified=false and marks rejection.
+ */
+export const rejectProfessional = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  if (!["doctor", "pharmacy"].includes(user.roles)) {
+    return res.status(400).json({ error: "User is not a doctor or pharmacy" });
+  }
+  await user.save();
+  return res.status(200).json({ success: true, userId: user._id, status: "rejected" });
+});
+
+/**
+ * GET /api/admin/healthcare-stats
+ * Platform-level healthcare statistics for the admin dashboard.
+ */
+export const getHealthcareStats = asyncHandler(async (req, res) => {
+  const [
+    doctorCount,
+    verifiedDoctors,
+    pharmacyCount,
+    verifiedPharmacies,
+    appointmentCount,
+    prescriptionCount,
+  ] = await Promise.all([
+    User.countDocuments({ roles: "doctor" }),
+    User.countDocuments({ roles: "doctor", "doctorProfile.verified": true }),
+    User.countDocuments({ roles: "pharmacy" }),
+    User.countDocuments({ roles: "pharmacy", "pharmacyProfile.verified": true }),
+    Appointment.countDocuments(),
+    Prescription.countDocuments(),
+  ]);
+
+  return res.status(200).json({
+    doctors:      { total: doctorCount,   verified: verifiedDoctors,   pending: doctorCount - verifiedDoctors },
+    pharmacies:   { total: pharmacyCount, verified: verifiedPharmacies, pending: pharmacyCount - verifiedPharmacies },
+    appointments: appointmentCount,
+    prescriptions: prescriptionCount,
+  });
 });

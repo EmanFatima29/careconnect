@@ -115,12 +115,23 @@ export const getNearbyUsers = asyncHandler(async (req, res) => {
       success: true,
       count: nearbyUsers.length,
       users: nearbyUsers.map((user) => ({
+        _id: user._id,
         id: user._id,
         name: user.name,
         coordinates: user.location.coordinates,
         profilePic: user.profilePic,
         status: user.status,
         lastSeen: user.lastSeen,
+        roles: user.roles || "patient",
+        ratingSummary: user.ratingSummary || { averageRating: 0, totalRatings: 0 },
+        doctorProfile: user.roles === "doctor" ? {
+          specialty: user.doctorProfile?.specialty || null,
+          verified: user.doctorProfile?.verified || false,
+        } : undefined,
+        pharmacyProfile: user.roles === "pharmacy" ? {
+          operatingHours: user.pharmacyProfile?.operatingHours || {},
+          verified: user.pharmacyProfile?.verified || false,
+        } : undefined,
       })),
     });
   } catch (error) {

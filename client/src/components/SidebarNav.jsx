@@ -26,6 +26,10 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 
 // MUI Icons — Admin section
 import PeopleIcon from "@mui/icons-material/People";
@@ -46,24 +50,36 @@ import { useTheme } from "@mui/material/styles";
 // ═══════════════════════════════════════════════════════
 
 const PATIENT_MENU = [
-  { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
-  { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/prescriptions", label: "Prescriptions", icon: LocalHospitalIcon },
-  { href: "/monitoring", label: "Monitoring", icon: MonitorHeartIcon },
-  { href: "/groups", label: "Groups", icon: GroupsIcon },
-  { href: "/analytics", label: "Analytics", icon: InsightsIcon },
-  { href: "/calendar", label: "Calendar", icon: CalendarMonthIcon },
-  { href: "/profile", label: "Profile", icon: AccountCircleIcon },
+  { href: "/dashboard",    label: "Dashboard",    icon: DashboardIcon },
+  { href: "/home",         label: "Home",         icon: HomeIcon },
+  { href: "/prescriptions",label: "Prescriptions",icon: LocalHospitalIcon },
+  { href: "/appointments", label: "Appointments", icon: EventAvailableIcon },
+  { href: "/monitoring",   label: "Monitoring",   icon: MonitorHeartIcon },
+  { href: "/groups",       label: "Groups",       icon: GroupsIcon },
+  { href: "/analytics",    label: "Analytics",    icon: InsightsIcon },
+  { href: "/calendar",     label: "Calendar",     icon: CalendarMonthIcon },
+  { href: "/profile",      label: "Profile",      icon: AccountCircleIcon },
 ];
 
 const DOCTOR_MENU = [
+  { href: "/dashboard",    label: "Dashboard",         icon: DashboardIcon },
+  { href: "/home",         label: "Home",              icon: HomeIcon },
+  { href: "/appointments", label: "Appointments",      icon: EventAvailableIcon },
+  { href: "/prescriptions",label: "Prescriptions",     icon: LocalHospitalIcon },
+  { href: "/monitoring",   label: "Patient Monitoring",icon: MonitorHeartIcon },
+  { href: "/groups",       label: "Groups",            icon: GroupsIcon },
+  { href: "/analytics",    label: "Analytics",         icon: InsightsIcon },
+  { href: "/calendar",     label: "Calendar",          icon: CalendarMonthIcon },
+  { href: "/profile",      label: "Profile",           icon: AccountCircleIcon },
+];
+
+const PHARMACY_MENU = [
   { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
   { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/prescriptions", label: "Prescriptions", icon: LocalHospitalIcon },
-  { href: "/monitoring", label: "Patient Monitoring", icon: MonitorHeartIcon },
+  { href: "/prescriptions", label: "Prescriptions", icon: LocalPharmacyIcon },
+  { href: "/monitoring", label: "Monitoring", icon: MonitorHeartIcon },
   { href: "/groups", label: "Groups", icon: GroupsIcon },
   { href: "/analytics", label: "Analytics", icon: InsightsIcon },
-  { href: "/calendar", label: "Calendar", icon: CalendarMonthIcon },
   { href: "/profile", label: "Profile", icon: AccountCircleIcon },
 ];
 
@@ -82,9 +98,10 @@ const ADMIN_MENU = [
     label: "Activity Logs",
     icon: HistoryIcon,
   },
-  { href: "/groups", label: "Groups", icon: GroupsIcon },
-  { href: "/prescriptions", label: "Prescriptions", icon: LocalHospitalIcon },
-  { href: "/calendar", label: "Calendar", icon: CalendarMonthIcon },
+  { href: "/groups",                label: "Groups",                icon: GroupsIcon },
+  { href: "/prescriptions",         label: "Prescriptions",         icon: LocalHospitalIcon },
+  { href: "/admin/verifications",   label: "Verifications",         icon: VerifiedIcon },
+  { href: "/calendar",              label: "Calendar",              icon: CalendarMonthIcon },
 ];
 
 const GENERAL_ITEMS = [
@@ -109,7 +126,9 @@ function SidebarNav({ onItemClick }) {
       ? ADMIN_MENU
       : role === "doctor"
         ? DOCTOR_MENU
-        : PATIENT_MENU;
+        : role === "pharmacy"
+          ? PHARMACY_MENU
+          : PATIENT_MENU;
 
   const userInitial = currentUser?.name
     ? currentUser.name.charAt(0).toUpperCase()
@@ -220,7 +239,7 @@ function SidebarNav({ onItemClick }) {
               px: 1,
               py: 0.25,
               borderRadius: 1,
-              bgcolor: role === "admin" ? "error.main" : role === "doctor" ? "success.main" : "primary.main",
+              bgcolor: role === "admin" ? "error.main" : role === "doctor" ? "success.main" : role === "pharmacy" ? "warning.main" : "primary.main",
               color: "#fff",
               fontSize: "0.5625rem",
               fontWeight: 700,
